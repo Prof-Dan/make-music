@@ -1,6 +1,5 @@
 <html>
 
-	<script type="text/javascript" src="tone.js"></script>
 </head>
 <body>
 
@@ -46,7 +45,7 @@
 	var midiFile;
 
 	var client = new XMLHttpRequest();
-	client.open('GET', '/music/raindrop.mid', true);
+	client.open('GET', '/music/Moonlight_sonata.mid', true);
 	client.responseType = 'arraybuffer';
 	client.onreadystatechange = function() {
 
@@ -88,9 +87,9 @@
 
 		MIDI.setEffects([{
         type: "Filter",
-        frequency: 500, // 20 to 22050
+        frequency: 1000, // 20 to 22050
         Q: 0, // 0.001 to 100
-        gain: -5, // -40 to 40
+        gain: -1, // -40 to 40
         bypass: 0, // 0 to 1+
         filterType: 'lowpass' // 0 to 7, corresponds to the filter types in the native filter node: lowpass, highpass, bandpass, lowshelf, highshelf, peaking, notch, allpass in that order
     }]);

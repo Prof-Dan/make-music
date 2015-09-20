@@ -1,6 +1,6 @@
 
 // Change this to '/music/lesorages.mid' or '/music/chopin_nocturne_20.mid' if you want a challenge...
-var PATH_TO_SONG = '/music/Moonlight_sonata.mid';
+var PATH_TO_SONG = './music/chopin_nocturne_20.mid';
 
 var pedal = false;
 var _killTimer = 1000;
@@ -118,7 +118,7 @@ function nextNote() {
   var notes = 0;
   while(true) {
 
-    console.log(noteNumber);
+    //console.log(noteNumber);
     if(noteNumber > midi.length) return;
 
     notes++;
@@ -167,7 +167,7 @@ function nextNote() {
       }
     }
     else {
-      if(midi[noteNumber] != undefined) {
+      if(midi[noteNumber] != undefined && midi[noteNumber].subtype == 8) {
         MIDI.noteOff(0, midi[noteNumber].param1, 0);
       }
     }
@@ -189,7 +189,7 @@ setInterval(function () {
 function clearNotes() {
   if(pedal) return;
   for(var i=0;i<100;i++) {
-    MIDI.noteOff(0, i, 0)
+    //MIDI.noteOff(0, i, 0)
   }
 }
 function getNextNoteOn(noteNumber) {

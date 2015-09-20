@@ -90,17 +90,21 @@
 					chain = effects[key];
 				}
 			}
-
+			console.log(velocity);
 			var filter = new ctx.tunajs.Filter({
-		      frequency: Math.max(20, (velocity/2)*50), // 20 to 22050
+		      frequency: 500, // 20 to 22050
 		      Q: 0.001, // 0.001 to 100
-		      gain: 40, // -40 to 40
+		      gain: 0, // -40 to 40
 		      bypass: 0, // 0 to 1+
 		      filterType: 'lowpass' // 0 to 7, corresponds to the filter types in the native filter node: lowpass, highpass, bandpass, lowshelf, highshelf, peaking, notch, allpass in that order
 		  });
 
-			source.connect(filter.input);
-			filter.connect(ctx.destination);
+			if(velocity < 80) {
+
+				source.connect(filter.input);
+				filter.connect(ctx.destination);
+
+			}
 
 			//console.log(Math.max(20, (velocity-10)*20));
 

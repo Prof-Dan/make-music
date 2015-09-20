@@ -73,7 +73,7 @@
 			if (delay < ctx.currentTime) {
 				delay += ctx.currentTime;
 			}
-		
+
 			/// create audio buffer
 			if (useStreamingBuffer) {
 				var source = ctx.createMediaElementSource(buffer);
@@ -91,10 +91,23 @@
 				}
 			}
 
+			var filter = new ctx.tunajs.Filter({
+		      frequency: Math.max(20, (velocity/2)*50), // 20 to 22050
+		      Q: 0.001, // 0.001 to 100
+		      gain: 40, // -40 to 40
+		      bypass: 0, // 0 to 1+
+		      filterType: 'lowpass' // 0 to 7, corresponds to the filter types in the native filter node: lowpass, highpass, bandpass, lowshelf, highshelf, peaking, notch, allpass in that order
+		  });
+
+			source.connect(filter.input);
+			filter.connect(ctx.destination);
+
+			//console.log(Math.max(20, (velocity-10)*20));
+
 			/// add gain + pitchShift
 			var gain = (velocity / 127) * (masterVolume / 127) * 2 - 1;
 			source.connect(ctx.destination);
-			source.playbackRate.value = 1; // pitch shift 
+			source.playbackRate.value = 1; // pitch shift
 			source.gainNode = ctx.createGain(); // gain
 			source.gainNode.connect(ctx.destination);
 			source.gainNode.gain.value = Math.min(1.0, Math.max(-1.0, gain));
@@ -135,7 +148,7 @@
 				var source = sources[channelId + '' + noteId];
 				if (source) {
 					if (source.gainNode) {
-						// @Miranet: 'the values of 0.2 and 0.3 could of course be used as 
+						// @Miranet: 'the values of 0.2 and 0.3 could of course be used as
 						// a 'release' parameter for ADSR like time settings.'
 						// add { 'metadata': { release: 0.3 } } to soundfont files
 						var gain = source.gainNode.gain;
@@ -217,11 +230,11 @@
 			root.setDefaultPlugin(midi);
 			midi.setContext(ctx || createAudioContext(), opts.onsuccess);
 		};
-	
+
 		midi.getContext = function() {
 			return ctx;
 		};
-	
+
 		midi.setContext = function(newCtx, onload, onprogress, onerror) {
 			ctx = newCtx;
 
@@ -229,7 +242,7 @@
 			if (typeof Tuna !== 'undefined' && !ctx.tunajs) {
 				ctx.tunajs = new Tuna(ctx);
 			}
-		
+
 			/// loading audio files
 			var urls = [];
 			var notes = root.keyToNote;
@@ -318,7 +331,7 @@
 				request.send();
 			}
 		};
-		
+
 		function createAudioContext() {
 			return new (window.AudioContext || window.webkitAudioContext)();
 		};

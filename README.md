@@ -2,6 +2,11 @@ Make-Music
 ==========
 Perform classical music in the browser by pressing keys.
 
+Demo
+====
+
+Go to [http://www.prof-dan.github.io/make-music]()
+
 Running
 =======
 

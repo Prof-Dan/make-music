@@ -5,7 +5,9 @@ Perform classical music in the browser by pressing keys.
 Demo
 ====
 
-Go to [http://www.prof-dan.github.io/make-music]()
+Go to [http://prof-dan.github.io/make-music/]()
+
+Please be patient while it loads as it only displays a black screen whilst loading.
 
 Running
 =======

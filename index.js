@@ -1,6 +1,5 @@
 
-// Change this to '/music/lesorages.mid' or '/music/chopin_nocturne_20.mid' if you want a challenge...
-var PATH_TO_SONG = './music/chopin_nocturne_20.mid';
+var PATH_TO_SONG;
 
 var pedal = false;
 var _killTimer = 1000;
@@ -11,7 +10,6 @@ var playTime = 0;
 var circlePos = 0;
 var midiFile;
 var renderer = PIXI.autoDetectRenderer(1200, 600, { antialias: true });
-document.body.appendChild(renderer.view);
 var stage = new PIXI.Container();
 stage.interactive = true;
 var graphics = [];
@@ -30,29 +28,27 @@ function animate() {
   renderer.render(stage);
   requestAnimationFrame( animate );
 }
-var client = new XMLHttpRequest();
-client.open('GET', PATH_TO_SONG, true);
-client.responseType = 'arraybuffer';
-client.onreadystatechange = function() {
-  anyBuffer = this.response;
+
+function start() {
+
+  document.body.appendChild(renderer.view);
+
+  PATH_TO_SONG = './music/'+getParameterByName('song')+'.mid';
+
+  var client = new XMLHttpRequest();
+  client.open('GET', PATH_TO_SONG, true);
+  client.responseType = 'arraybuffer';
+  client.onreadystatechange = function() {
+    anyBuffer = this.response;
+    loaded()
+  }
+  client.send();
+
 }
-client.send();
-window.onload = function () {
-  MIDI.loadPlugin({
-    soundfontUrl: "./soundfont/",
-    instrument: "acoustic_grand_piano",
-    onprogress: function(state, progress) {
-      console.log(state, progress);
-    },
-    onsuccess: function() {
-      console.log('loaded')
-      midiFile = new MIDIFile(anyBuffer);
-      loaded();
-    }
-  });
-};
 function loaded() {
+  midiFile = new MIDIFile(anyBuffer);
   var events = midiFile.getMidiEvents();
+  console.log(events);
   events = parseMidiEvents(events);
   console.dir(midi);
   window.onkeydown = nextNote;
@@ -64,7 +60,7 @@ function loaded() {
   var j = 0;
   while(j<midi.length) {
     if(midi[j].subtype == 9) {
-      console.log(midi[j].param2);
+      //console.log(midi[j].param2);
       circles[i] = new PIXI.Sprite(graphics[midi[j].param2].generateTexture());
       circles[i].x = midi[j].playTime/2;
       circles[i].y = Math.min(600, Math.max(0, 600-midi[j].param1*5));
@@ -119,7 +115,7 @@ function nextNote() {
   while(true) {
 
     //console.log(noteNumber);
-    if(noteNumber > midi.length) return;
+    if(noteNumber >= midi.length) finish();
 
     notes++;
     if(notes > 10) {
@@ -191,6 +187,11 @@ function clearNotes() {
   for(var i=0;i<100;i++) {
     //MIDI.noteOff(0, i, 0)
   }
+}
+function finish() {
+
+  setTimeout(function(){window.location.href='../'}, 2500);
+
 }
 function getNextNoteOn(noteNumber) {
   var n = noteNumber;

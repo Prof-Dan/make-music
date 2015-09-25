@@ -13,6 +13,7 @@ var renderer = PIXI.autoDetectRenderer(1200, 600, { antialias: true });
 var stage = new PIXI.Container();
 stage.interactive = true;
 var graphics = [];
+var _notes = [];
 for(var i=0;i<128;i++) {
 
   graphics[i] = new PIXI.Graphics();
@@ -110,23 +111,38 @@ function parseNoteOnEvents(events) {
   return midi;
 }
 function nextNote() {
+
+  if(_notes.length > 0) {
+
+    for(var i=0;i<_notes.length;i++) {
+
+      for(var j=0;j<_notes.length;j++) {
+
+        if(_notes[i] - _notes[j] < 2 && _notes[i] - _notes[j] > -2 && _notes[i] - _notes[j] != 0 && i != j) {
+
+          clearNotes();
+          console.log(_notes);
+          _notes = [];
+          console.log('clear');
+
+        }
+
+      }
+
+    }
+
+  }
+
   _killTimer = 1000;
-  var notes = 0;
   while(true) {
 
     //console.log(noteNumber);
     if(noteNumber >= midi.length) finish();
-
-    notes++;
-    if(notes > 10) {
-
-      return;
-
-    }
     //if(getNextNoteOn(noteNumber) == undefined) return;
     if(midi[noteNumber] != undefined && midi[noteNumber].subtype == 9) {
       if(getNextNoteOn(noteNumber) != null && getNextNoteOn(noteNumber).chordOff) {
-        MIDI.noteOn(0, midi[noteNumber].param1, midi[noteNumber].param2, 0);
+        _notes.push(midi[noteNumber].param1);
+        MIDI.noteOn(0, midi[noteNumber].param1, midi[noteNumber].param2);
         playTime = getNextNoteOn(noteNumber).playTime/2;
 
         for(var i=0;i<circles.length;i++) {
@@ -144,7 +160,8 @@ function nextNote() {
         return;
       }
       else {
-        MIDI.noteOn(0, midi[noteNumber].param1, midi[noteNumber].param2, 0);
+        MIDI.noteOn(0, midi[noteNumber].param1, midi[noteNumber].param2);
+        _notes.push(midi[noteNumber].param1);
         for(var i=0;i<circles.length;i++) {
 
           for(var i=0;i<circles.length;i++) {
@@ -164,7 +181,7 @@ function nextNote() {
     }
     else {
       if(midi[noteNumber] != undefined && midi[noteNumber].subtype == 8) {
-        MIDI.noteOff(0, midi[noteNumber].param1, 0);
+        //MIDI.noteOff(0, midi[noteNumber].param1, 0);
       }
     }
     noteNumber++;
@@ -185,7 +202,7 @@ setInterval(function () {
 function clearNotes() {
   if(pedal) return;
   for(var i=0;i<100;i++) {
-    //MIDI.noteOff(0, i, 0)
+    MIDI.noteOff(0, i, 0)
   }
 }
 function finish() {

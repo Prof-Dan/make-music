@@ -141,7 +141,7 @@ function nextNote() {
     //if(getNextNoteOn(noteNumber) == undefined) return;
     if(midi[noteNumber] != undefined && midi[noteNumber].subtype == 9) {
       if(getNextNoteOn(noteNumber) != null && getNextNoteOn(noteNumber).chordOff) {
-        _notes.push(midi[noteNumber].param1);
+        //_notes.push(midi[noteNumber].param1);
         MIDI.noteOn(0, midi[noteNumber].param1, midi[noteNumber].param2);
         playTime = getNextNoteOn(noteNumber).playTime/2;
 
@@ -161,7 +161,7 @@ function nextNote() {
       }
       else {
         MIDI.noteOn(0, midi[noteNumber].param1, midi[noteNumber].param2);
-        _notes.push(midi[noteNumber].param1);
+        //_notes.push(midi[noteNumber].param1);
         for(var i=0;i<circles.length;i++) {
 
           for(var i=0;i<circles.length;i++) {
@@ -181,7 +181,7 @@ function nextNote() {
     }
     else {
       if(midi[noteNumber] != undefined && midi[noteNumber].subtype == 8) {
-        //MIDI.noteOff(0, midi[noteNumber].param1, 0);
+        _notes.push(midi[noteNumber].param1);
       }
     }
     noteNumber++;
@@ -201,8 +201,8 @@ setInterval(function () {
 }, 10);
 function clearNotes() {
   if(pedal) return;
-  for(var i=0;i<100;i++) {
-    MIDI.noteOff(0, i, 0)
+  for(var i=0;i<_notes.length;i++) {
+    MIDI.noteOff(0, _notes[i], 0);
   }
 }
 function finish() {

@@ -92,7 +92,7 @@
 			}
 			//console.log(velocity);
 			var filter = new ctx.tunajs.Filter({
-		      frequency: 500, // 20 to 22050
+		      frequency: velocity*2, // 20 to 22050
 		      Q: 0.001, // 0.001 to 100
 		      gain: 0, // -40 to 40
 		      bypass: 0, // 0 to 1+

@@ -13,7 +13,7 @@ window.onload = function () {
   });
 };
 
-var songs = ['Moonlight_sonata', 'chopin_nocturne_20', 'lesorages', 'raindrop'];
+var songs = ['Moonlight_sonata', 'chopin_nocturne_20', 'lesorages', 'raindrop', 'Rachmaninov prelude no 2'];
 
 function displayMenu() {
 

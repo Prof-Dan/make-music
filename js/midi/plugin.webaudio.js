@@ -99,12 +99,12 @@
 		      filterType: 'lowpass' // 0 to 7, corresponds to the filter types in the native filter node: lowpass, highpass, bandpass, lowshelf, highshelf, peaking, notch, allpass in that order
 		  });
 
-			if(velocity < 80) {
+			//if(velocity < 80) {
 
 				source.connect(filter.input);
 				filter.connect(ctx.destination);
 
-			}
+			//}
 
 			//console.log(Math.max(20, (velocity-10)*20));
 

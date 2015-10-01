@@ -5,6 +5,7 @@ var pedal = false;
 var _killTimer = 1000;
 var midi = [];
 var noteNumber = 0;
+var noteOnNumber = 0;
 var anyBuffer;
 var playTime = 0;
 var circlePos = 0;
@@ -14,6 +15,7 @@ var stage = new PIXI.Container();
 stage.interactive = true;
 var graphics = [];
 var _notes = [];
+var midiOn = [];
 for(var i=0;i<128;i++) {
 
   graphics[i] = new PIXI.Graphics();
@@ -39,8 +41,9 @@ function start() {
   var client = new XMLHttpRequest();
   client.open('GET', PATH_TO_SONG, true);
   client.responseType = 'arraybuffer';
-  client.onreadystatechange = function() {
+  client.onreadystatechange = function(m) {
     anyBuffer = this.response;
+    console.log(m);
     loaded()
   }
   client.send();
@@ -49,28 +52,24 @@ function start() {
 function loaded() {
   midiFile = new MIDIFile(anyBuffer);
   var events = midiFile.getMidiEvents();
-  console.log(events);
+  //console.log(events);
   events = parseMidiEvents(events);
-  console.dir(midi);
+  console.dir(midiOn);
   window.onkeydown = nextNote;
   Mousetrap.bind('space', clearNotes, 'keydown');
   Mousetrap.bind('space', pedalUp, 'keyup');
   var ctx = MIDI.getContext();
   ctx.tunajs = new Tuna(ctx);
-  var i = 0;
-  var j = 0;
-  while(j<midi.length) {
-    if(midi[j].subtype == 9) {
-      //console.log(midi[j].param2);
-      circles[i] = new PIXI.Sprite(graphics[midi[j].param2].generateTexture());
-      circles[i].x = midi[j].playTime/2;
-      circles[i].y = Math.min(600, Math.max(0, 600-midi[j].param1*5));
-      circles[i].playTime = midi[j].playTime/2;
-      circles[i].noteNumber = j;
-      stage.addChild(circles[i]);
-      i++;
-    }
-    j++;
+  for(var i=0;i<100;i++) {
+
+    circles[i] = new PIXI.Sprite(graphics[midiOn[i].param2].generateTexture());
+    circles[i].x = midiOn[i].playTime/2;
+    circles[i].y = Math.min(600, Math.max(0, 600-midiOn[i].param1*5));
+    circles[i].playTime = midiOn[i].playTime/2;
+    circles[i].noteNumber = i;
+    circles[i].anchor = new PIXI.Point(.5, .5);
+    stage.addChild(circles[i]);
+
   }
 }
 function parseMidiEvents(events) {
@@ -81,10 +80,30 @@ function parseMidiEvents(events) {
 }
 function getNoteOnEvents(events) {
   var _events = [];
+  var _midiOn = [];
   for(var i=0;i<events.length;i++) {
     if(events[i].type == 8 && (events[i].subtype == 9 || events[i].subtype == 8)) {
       _events.push(events[i]);
     }
+    if(events[i].type == 8 && events[i].subtype == 9) {
+
+      _midiOn.push(events[i]);
+
+    }
+  }
+  var _ms = 0;
+  for(var i=0;i<_midiOn.length;i++) {
+      if(_midiOn[i].playTime >= (_ms + 10) || _midiOn[i].playTime <= (_ms - 10)) {
+        _ms = _midiOn[i].playTime;
+        var event = _midiOn[i];
+        event.chordOff = true;
+        midiOn.push(event);
+      }
+      else {
+        var event = _midiOn[i];
+        event.chordOff = false;
+        midiOn.push(event);
+      }
   }
   return _events
 }
@@ -112,29 +131,27 @@ function parseNoteOnEvents(events) {
 }
 function nextNote() {
 
+  for(var i=0;i<100;i++) {
+
+    circles[i].scale = new PIXI.Point(1.2, 1.2);
+    TweenLite.to(circles[i].scale, .5, {x:1, y:1});
+
+  }
   if(_notes.length > 0) {
-
     for(var i=0;i<_notes.length;i++) {
-
       for(var j=0;j<_notes.length;j++) {
-
         if(_notes[i] - _notes[j] < 2 && _notes[i] - _notes[j] > -2 && _notes[i] - _notes[j] != 0 && i != j) {
-
           clearNotes();
-          console.log(_notes);
           _notes = [];
-          console.log('clear');
-
         }
-
       }
-
     }
-
   }
 
   _killTimer = 1000;
   while(true) {
+
+    var j = Math.max(noteNumber + 50, circles.length);
 
     //console.log(noteNumber);
     if(noteNumber >= midi.length) finish();
@@ -147,36 +164,69 @@ function nextNote() {
 
         for(var i=0;i<circles.length;i++) {
 
-          TweenMax.to(circles[i], 1, {x:circles[i].playTime-playTime});
+          TweenLite.to(circles[i], 1, {x:circles[i].playTime-playTime});
 
-          if(circles[i].noteNumber == noteNumber) {
+          if(circles[i].noteNumber == noteOnNumber) {
 
-            circles[i].y = 1000;
+            var j = noteOnNumber+100;
 
-          }
+            if(j > midiOn.length-1) stage.removeChild(circles[i]);
 
-        }
-        noteNumber++;
-        return;
-      }
-      else {
-        MIDI.noteOn(0, midi[noteNumber].param1, midi[noteNumber].param2);
-        //_notes.push(midi[noteNumber].param1);
-        for(var i=0;i<circles.length;i++) {
+            else {
 
-          for(var i=0;i<circles.length;i++) {
+              stage.removeChild(circles[i]);
 
-            TweenMax.to(circles[i], 1, {x:circles[i].playTime-playTime});
-
-            if(circles[i].noteNumber == noteNumber) {
-
-              circles[i].y = 1000;
+              circles[i] = new PIXI.Sprite(graphics[midiOn[j].param2].generateTexture());
+              //console.log(i, j);
+              circles[i].x = midiOn[j].playTime/2;
+              circles[i].y = Math.min(600, Math.max(0, 600-midiOn[j].param1*5));
+              circles[i].playTime = midiOn[j].playTime/2;
+              circles[i].noteNumber = j;
+              circles[i].anchor = new PIXI.Point(.5, .5);
+              stage.addChild(circles[i]);
 
             }
 
           }
 
         }
+        noteNumber++;
+        noteOnNumber++;
+        return;
+      }
+      else {
+        MIDI.noteOn(0, midi[noteNumber].param1, midi[noteNumber].param2);
+        //_notes.push(midi[noteNumber].param1);
+
+        for(var i=0;i<circles.length;i++) {
+
+            TweenLite.to(circles[i], 1, {x:circles[i].playTime-playTime});
+
+            if(circles[i].noteNumber == noteOnNumber) {
+
+              var j = noteOnNumber+100;
+
+              if(j > midiOn.length) stage.removeChild(circles[i]);
+
+              else {
+
+                stage.removeChild(circles[i]);
+
+                circles[i] = new PIXI.Sprite(graphics[midiOn[j].param2].generateTexture());
+                //console.log(i, j);
+                circles[i].x = midiOn[j].playTime/2;
+                circles[i].y = Math.min(600, Math.max(0, 600-midiOn[j].param1*5));
+                circles[i].playTime = midiOn[j].playTime/2;
+                circles[i].noteNumber = j;
+                circles[i].anchor = new PIXI.Point(.5, .5);
+                stage.addChild(circles[i]);
+
+              }
+
+            }
+
+        }
+        noteOnNumber++;
       }
     }
     else {

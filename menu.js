@@ -13,7 +13,7 @@ window.onload = function () {
   });
 };
 
-var songs = ['Moonlight_sonata', 'chopin_nocturne_20', 'lesorages', 'raindrop', 'Rachmaninov prelude no 2'];
+var songs = ['Beethoven Moonlight Sonata Mvt 1', 'Chopin Nocturne no 20', 'Burgmuller Les Orages', 'Chopin Raindrop Prelude', 'Rachmaninov prelude no 2', 'Brahms Waltz no 15', 'Brahms Hungarian Dance no 5', 'Bach Moonlight Sonata Mvt 3', 'Mozart Piano Sonata no 16', 'Mozart Turkish March', 'Haydn Insanae et Vanae Curae', 'Chopin Prelude no 24', 'Chopin Fantaisie Impromptu'];
 
 function displayMenu() {
 

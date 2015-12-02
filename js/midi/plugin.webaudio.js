@@ -90,9 +90,13 @@
 					chain = effects[key];
 				}
 			}
-			//console.log(velocity);
+
+			var steps = noteId - 69;
+			var freq = 440 * Math.pow(Math.pow(2, 1/12), steps);
+
+			//console.log(freq;
 			var filter = new ctx.tunajs.Filter({
-		      frequency: velocity*2, // 20 to 22050
+		      frequency: freq*(1/velocity), // 20 to 22050
 		      Q: 0.001, // 0.001 to 100
 		      gain: 0, // -40 to 40
 		      bypass: 0, // 0 to 1+
